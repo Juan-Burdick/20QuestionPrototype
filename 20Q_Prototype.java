@@ -1,12 +1,8 @@
-package com.mkyong;
-
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import java.io.FileWriter;
 import java.io.IOException;
-
-package com.mkyong;
 
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -44,7 +40,7 @@ public class 20Q_Prototype
         {
             // fileReader = new FileReader("questions.txt");
             // BufferedReader qDoc = new BufferedReader(fileReader);
-            Object obj = parser.parse(new BufferedReader(fileReader("questions.txt")));
+            Object obj = parser.parse(new BufferedReader(fileReader("info.txt")));
             JSONObject jsonObject = (JSONObject) obj;
 
             /* while (count >= 0 || count <= 20) 
@@ -83,9 +79,7 @@ public class 20Q_Prototype
         }
         finally
         {
-            if (qDoc != null) { qDoc.close(); }
-            if (aDocIn != null) { aDocIn.close(); }
-            if (aDocOut != null) { aDocOut.close(); }
+            
         }
     }
 
