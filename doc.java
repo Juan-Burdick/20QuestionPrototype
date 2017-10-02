@@ -1,4 +1,4 @@
-import org.json.me;
+
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -178,7 +178,37 @@ class QuestionEncoder {
       System.out.print(q20);
 
 
-
+      try 
+      {
+        FileWriter fileWriter = new FileWriter("info.json");
+        fileWriter.write(q1.toJSONString());
+        fileWriter.write(q2.toJSONString());
+        fileWriter.write(q3.toJSONString());
+        fileWriter.write(q4.toJSONString());
+        fileWriter.write(q5.toJSONString());
+        fileWriter.write(q6.toJSONString());
+        fileWriter.write(q7.toJSONString());
+        fileWriter.write(q8.toJSONString());
+        fileWriter.write(q9.toJSONString());
+        fileWriter.write(q10.toJSONString());
+        fileWriter.write(q11.toJSONString());
+        fileWriter.write(q12.toJSONString());
+        fileWriter.write(q13.toJSONString());
+        fileWriter.write(q14.toJSONString());
+        fileWriter.write(q15.toJSONString());
+        fileWriter.write(q16.toJSONString());
+        fileWriter.write(q17.toJSONString());
+        fileWriter.write(q18.toJSONString());
+        fileWriter.write(q19.toJSONString());
+        fileWriter.write(q20.toJSONString());
+        
+        fileWriter.flush();
+      } 
+      catch (Exception e) 
+      {
+        e.printStackTrace();
+      }
+      System.out.println(q1);
       
 
 
