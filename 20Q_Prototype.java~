@@ -20,17 +20,17 @@ public class 20Q_Prototype
 
     public static void main (String[] args) throws IOException
     {
-        private int count = 0;
+        int count = 0;
         FileReader fileReader = null;
         FileInputStream aDocIn = null;
         FileOutputStream aDocOut = null;
         File file = null;
-        private String input;
-        private int subsetSize = 0;
-        private String[] TagArray = new String[20];
-        private int questionID;
-        private ArrayList() answerArray;
-        private ArrayList() questionSubset;
+        String input;
+        int subsetSize = 0;
+        String[] TagArray = new String[20];
+        int questionID;
+        ArrayList answerArray = new ArrayList();
+        ArrayList questionSubset = new ArrayList();
         Scanner scan = new Scanner(System.in);
         JSONParser parser = new JSONParser();
         // input variable for yes or no answer
@@ -40,8 +40,9 @@ public class 20Q_Prototype
         {
             // fileReader = new FileReader("questions.txt");
             // BufferedReader qDoc = new BufferedReader(fileReader);
-            Object obj = parser.parse(new BufferedReader(fileReader("info.txt")));
+            Object obj = parser.parse(new FileReader("C:/Users/Josh/Desktop/project/20QuestionPrototype/info.json"));
             JSONObject jsonObject = (JSONObject) obj;
+            system.out.println(obj);
 
             /* while (count >= 0 || count <= 20) 
             {
