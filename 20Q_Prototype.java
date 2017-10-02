@@ -43,8 +43,9 @@ class QuestionsPrototype
             Object obj = parser.parse(new FileReader("C:/Users/Josh/Desktop/project/20QuestionPrototype/info.json"));
             JSONObject jsonObject = (JSONObject) obj;
             
-            System.out.println(jsonObject);
+            Object accessedQ = parser.parse(jsonObject.get("1"));
 
+            System.out.println(accessedQ.question);
            
         }catch (Exception e) 
           {
