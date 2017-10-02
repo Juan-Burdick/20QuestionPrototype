@@ -40,10 +40,6 @@ public class 20Q_Prototype
         // input variable for yes or no answer
         // scan = input.next(); 
         
-        qDoc = new FileInputStream("questions.txt");
-        aDocIn = new FileInputStream("answers.txt");
-        aDocOut = new FileOutputStream("answers.txt");
-        
         try 
         {
             // fileReader = new FileReader("questions.txt");
@@ -51,7 +47,7 @@ public class 20Q_Prototype
             Object obj = parser.parse(new BufferedReader(fileReader("questions.txt")));
             JSONObject jsonObject = (JSONObject) obj;
 
-            while (count >= 0 || count <= 20) 
+            /* while (count >= 0 || count <= 20) 
             {
                 system.out.println(file.count)
                 // read question from file
@@ -83,7 +79,7 @@ public class 20Q_Prototype
                 }
                 else if (count > 20) { break; }
                 count++;
-            }
+            } */
         }
         finally
         {
@@ -93,13 +89,13 @@ public class 20Q_Prototype
         }
     }
 
-    private void selectNextQuestion(int[] qIDs, int max) 
+    /* private void selectNextQuestion(int[] qIDs, int max) 
     {
         int randomNum = ThreadLocalRandom.current().nextInt(1, max + 1);
         // randomnumber constrained to size of array
-    }
+    } */
 
-    private void populateAnswers(String[] tags)
+    /* private void populateAnswers(String[] tags)
     {
         int match = 0;
         for(int i = 0; i < FileAnswer.size(); i++)
@@ -119,14 +115,14 @@ public class 20Q_Prototype
             }
         }
 
-    }
+    } */
 
-    private void addAnswer(String[] tags)
+    /* private void addAnswer(String[] tags)
     {
-        answers.put("ID", new Integer(/* some function for next ID in line */));
-        answers.put("text", /* text from user */);
-        answers.put("tags", /* tag array, prob have to for:each this */);
-    }
+        answers.put("ID", new Integer("some function for next ID in line"));
+        answers.put("text", "text from user ");
+        answers.put("tags", "tag array, prob have to for:each this ");
+    } */ 
 }
 
 // https://github.com/Juan-Burdick/20QuestionPrototype.git
