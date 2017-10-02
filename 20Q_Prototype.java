@@ -25,7 +25,7 @@ public class 20Q_Prototype
     public static void main (String[] args) throws IOException
     {
         private int count = 0;
-        FileInputStream qDoc = null;
+        FileReader fileReader = null;
         FileInputStream aDocIn = null;
         FileOutputStream aDocOut = null;
         File file = null;
@@ -46,7 +46,9 @@ public class 20Q_Prototype
         
         try 
         {
-            Object obj = parser.parse(new FileReader("questions.txt"));
+            // fileReader = new FileReader("questions.txt");
+            // BufferedReader qDoc = new BufferedReader(fileReader);
+            Object obj = parser.parse(new BufferedReader(fileReader("questions.txt")));
             JSONObject jsonObject = (JSONObject) obj;
 
             while (count >= 0 || count <= 20) 
