@@ -8,7 +8,7 @@ import java.io.IOException;
 
 import org.json.simple.JSONObject;
 
-public class QuestionEncoder {
+class QuestionEncoder {
 
    public static void main(String[] args){
       JSONObject q1 = new JSONObject();
@@ -182,24 +182,43 @@ public class QuestionEncoder {
       {
         FileWriter fileWriter = new FileWriter("info.json");
         fileWriter.write(q1.toJSONString());
+        fileWriter.write("\n");
         fileWriter.write(q2.toJSONString());
+        fileWriter.write("\n");
         fileWriter.write(q3.toJSONString());
+        fileWriter.write("\n");
         fileWriter.write(q4.toJSONString());
+        fileWriter.write("\n");
         fileWriter.write(q5.toJSONString());
+        fileWriter.write("\n");
         fileWriter.write(q6.toJSONString());
+        fileWriter.write("\n");
         fileWriter.write(q7.toJSONString());
+        fileWriter.write("\n");
         fileWriter.write(q8.toJSONString());
+        fileWriter.write("\n");
         fileWriter.write(q9.toJSONString());
+        fileWriter.write("\n");
         fileWriter.write(q10.toJSONString());
+        fileWriter.write("\n");
         fileWriter.write(q11.toJSONString());
+        fileWriter.write("\n");
         fileWriter.write(q12.toJSONString());
+        fileWriter.write("\n");
         fileWriter.write(q13.toJSONString());
+        fileWriter.write("\n");
         fileWriter.write(q14.toJSONString());
+        fileWriter.write("\n");
         fileWriter.write(q15.toJSONString());
+        fileWriter.write("\n");
         fileWriter.write(q16.toJSONString());
+        fileWriter.write("\n");
         fileWriter.write(q17.toJSONString());
+        fileWriter.write("\n");
         fileWriter.write(q18.toJSONString());
+        fileWriter.write("\n");
         fileWriter.write(q19.toJSONString());
+        fileWriter.write("\n");
         fileWriter.write(q20.toJSONString());
         
         fileWriter.flush();
