@@ -1,4 +1,4 @@
-package com.mkyong;
+import org.json.me;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -177,31 +177,42 @@ class QuestionEncoder {
       System.out.print(q19);
       System.out.print(q20);
 
-      try (FileWriter File = new FileWriter("C:\Users\Josh\Desktop\school\Git destination\git stuff\20QuestionPrototype")) 
-      File.write(q1);
-      File.write(q2);
-      File.write(q3);
-      File.write(q4);
-      File.write(q5);
-      File.write(q6);
-      File.write(q7);
-      File.write(q8);
-      File.write(q9);
-      File.write(q10);
-      File.write(q11);
-      File.write(q12);
-      File.write(q13);
-      File.write(q14);
-      File.write(q15);
-      File.write(q16);
-      File.write(q17);
-      File.write(q18);
-      File.write(q19);
-      File.write(q20);
 
 
       
 
 
+
    }
+}
+
+private void JSONParser()
+{
+    JSONParser parser = new JSONParser();
+ 
+        try 
+        {
+ 
+            Object obj = parser.parse(new FileReader("location of our file"));
+ 
+            JSONObject jsonObject = (JSONObject) obj;
+ 
+            String name = (String) jsonObject.get("Name");
+            String author = (String) jsonObject.get("Author");
+            JSONArray companyList = (JSONArray) jsonObject.get("Company List");
+ 
+            System.out.println("Name: " + name);
+            System.out.println("Author: " + author);
+            System.out.println("\nCompany List:");
+            Iterator<String> iterator = companyList.iterator();
+            while (iterator.hasNext()) 
+            {
+                System.out.println(iterator.next());
+            }
+ 
+        } 
+        catch (Exception e) 
+        {
+            e.printStackTrace();
+        }
 }
