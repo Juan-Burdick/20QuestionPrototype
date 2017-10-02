@@ -42,8 +42,8 @@ class QuestionsPrototype
             // BufferedReader qDoc = new BufferedReader(fileReader);
             Object obj = parser.parse(new FileReader("C:/Users/Josh/Desktop/project/20QuestionPrototype/info.json"));
             JSONObject jsonObject = (JSONObject) obj;
-            String name = (String) jsonObject.get("ID");
-            System.out.println(name);
+            
+            System.out.println(jsonObject);
 
            
         }catch (Exception e) 
