@@ -177,50 +177,37 @@ class QuestionEncoder {
       System.out.print(q19);
       System.out.print(q20);
 
+      JSONObject output = new JSONObject();
+
+      output.put("1" , q1);
+      output.put("2" , q2);
+      output.put("3" , q3);
+      output.put("4" , q4);
+      output.put("5" , q5);
+      output.put("6" , q6);
+      output.put("7" , q7);
+      output.put("8" , q8);
+      output.put("9" , q9);
+      output.put("10" , q10);
+      output.put("11" , q11);
+      output.put("12" , q12);
+      output.put("13" , q13);
+      output.put("14" , q14);
+      output.put("15" , q15);
+      output.put("16" , q16);
+      output.put("17" , q17);
+      output.put("18" , q18);
+      output.put("19" , q19);
+      output.put("20" , q20);
+      
 
       try 
       {
-        FileWriter fileWriter = new FileWriter("info.json");
-        fileWriter.write(q1.toJSONString());
-        fileWriter.write("\n");
-        fileWriter.write(q2.toJSONString());
-        fileWriter.write("\n");
-        fileWriter.write(q3.toJSONString());
-        fileWriter.write("\n");
-        fileWriter.write(q4.toJSONString());
-        fileWriter.write("\n");
-        fileWriter.write(q5.toJSONString());
-        fileWriter.write("\n");
-        fileWriter.write(q6.toJSONString());
-        fileWriter.write("\n");
-        fileWriter.write(q7.toJSONString());
-        fileWriter.write("\n");
-        fileWriter.write(q8.toJSONString());
-        fileWriter.write("\n");
-        fileWriter.write(q9.toJSONString());
-        fileWriter.write("\n");
-        fileWriter.write(q10.toJSONString());
-        fileWriter.write("\n");
-        fileWriter.write(q11.toJSONString());
-        fileWriter.write("\n");
-        fileWriter.write(q12.toJSONString());
-        fileWriter.write("\n");
-        fileWriter.write(q13.toJSONString());
-        fileWriter.write("\n");
-        fileWriter.write(q14.toJSONString());
-        fileWriter.write("\n");
-        fileWriter.write(q15.toJSONString());
-        fileWriter.write("\n");
-        fileWriter.write(q16.toJSONString());
-        fileWriter.write("\n");
-        fileWriter.write(q17.toJSONString());
-        fileWriter.write("\n");
-        fileWriter.write(q18.toJSONString());
-        fileWriter.write("\n");
-        fileWriter.write(q19.toJSONString());
-        fileWriter.write("\n");
-        fileWriter.write(q20.toJSONString());
+
         
+        FileWriter fileWriter = new FileWriter("info.json");
+
+        fileWriter.write(output.toJSONString());
         fileWriter.flush();
       } 
       catch (Exception e) 
