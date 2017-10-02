@@ -1,5 +1,12 @@
+package com.mkyong;
+
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import java.io.*;
+
+import java.io.FileWriter;
+import java.io.IOException;
+
+import org.json.simple.JSONObject;
 
 class QuestionEncoder {
 
@@ -170,9 +177,8 @@ class QuestionEncoder {
       System.out.print(q19);
       System.out.print(q20);
 
-      FileOutputStream File = null;
-      File = new FileOutputStream("Questions.JSON");
-      File.write(q1.toJSONString());
+      try (FileWriter File = new FileWriter("C:\Users\Josh\Desktop\school\Git destination\git stuff\20QuestionPrototype")) 
+      File.write(q1);
       File.write(q2);
       File.write(q3);
       File.write(q4);
