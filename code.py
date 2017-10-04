@@ -23,7 +23,7 @@ while count < 20:
         if (answer == "yes"):
             tagList[count] = questionCurrent["yTag"]
             cond = 0
-        if (answer == "no"):
+        elif (answer == "no"):
             tagList[count] = questionCurrent["nTag"]
             cond = 0
         else:
