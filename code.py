@@ -10,15 +10,14 @@ tagList = [0]*20
 with open('file.txt', 'r') as fileR:
     questions = json.load(fileR)
 
-cond = 1
 count = 0
 a = 1
-answer = ""
 
 
 while count < 20:
     questionCurrent = (questions["question" + str(a)])
     print(questionCurrent["question"])
+    cond = 1
     while cond != 0:
         answer = input("")
         if (answer == "yes"):
@@ -31,5 +30,6 @@ while count < 20:
             print("please enter 'yes' or 'no' ")
     count += 1
     a += 1
+print(tagList)
 
 
