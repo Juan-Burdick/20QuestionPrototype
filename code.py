@@ -31,5 +31,10 @@ while count < 20:
     count += 1
     a += 1
 print(tagList)
+print("what was the animal")
+animal = input("")
+answer = {animal: tagList}
+with open('answer.txt', 'w') as fileW:
+    fileW.write(json.dumps(answer))
 
 

@@ -31,8 +31,7 @@ questions = {"question1": q1, "question2": q2, "question3": q3, "question4": q4,
              "question13": q13, "question14": q14, "question15": q15, "question16": q16,
              "question17": q17, "question18": q18, "question19": q19, "question20": q20}
 
-print(questions["question1"])
-print(questions["question2"])
+print(questions)
 
 # writes question dict to file.txt
 with open('file.txt', 'w') as fileW:
