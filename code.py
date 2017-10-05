@@ -5,10 +5,15 @@ print("20q project")
 
 # array to store question tags
 tagList = [0]*20
+answerList = []
 
 # reads file.txt and stores question dict @param data
 with open('file.txt', 'r') as fileR:
     questions = json.load(fileR)
+# reads answer.txt and stores answers dict
+with open('answer.txt', 're') as file2:
+    answersWriteable = json.load(file2)
+answersEditable = answersWriteable
 
 count = 0
 a = 1
@@ -31,6 +36,18 @@ while count < 20:
     count += 1
     a += 1
 print(tagList)
+
+if count == 20:
+    for ans in answersWriteable:
+        strike = 0
+        for tag in tagList:
+            if strike >= (tagList.len/5):
+                del answersEditable["ans"]
+                break
+            elif tag in ans["tag"]:
+            else:
+                strike += 1
+
 
 # makes questions with tagList and animal
     # needs if statement to decide if answer
