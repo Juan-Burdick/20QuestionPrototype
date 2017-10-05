@@ -13,7 +13,7 @@ with open('file.txt', 'r') as fileR:
 count = 0
 a = 1
 
-
+# main while loop of program that asks questions
 while count < 20:
     questionCurrent = (questions["question" + str(a)])
     print(questionCurrent["question"])
@@ -31,10 +31,12 @@ while count < 20:
     count += 1
     a += 1
 print(tagList)
+
+# makes questions with tagList and animal
+    # needs if statement to decide if answer
+    # exists or needs creation
 print("what was the animal")
 animal = input("")
 answer = {animal: tagList}
 with open('answer.txt', 'w') as fileW:
     fileW.write(json.dumps(answer))
-
-
