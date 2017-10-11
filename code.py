@@ -45,18 +45,6 @@ while count < 20:
 print(tagList)
 
 
-#if count == 20:
-#    for ans in answersWriteable:
-#        strike = 0
-#        for tag in tagList:
-#            if strike >= (tagList.len/5):
-#                del answersEditable["ans"]
-#                break
-#            elif tag in ans["tag"]:
-#            else:
-#                strike += 1
-
-
 # makes questions with tagList and animal
     # needs if statement to decide if answer
     # exists or needs creation
