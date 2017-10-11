@@ -8,15 +8,21 @@ tagList = [0]*20
 answerList = []
 
 # reads file.txt and stores question dict @param data
-with open('file.txt', 'r') as fileR:
-    questions = json.load(fileR)
+with open('file.txt', 'r') as fileQ:
+    questions = json.load(fileQ)
+print(questions)
 # reads answer.txt and stores answers dict
-with open('answer.txt', 're') as file2:
-    answersWriteable = json.load(file2)
-answersEditable = answersWriteable
+with open('answer.txt', 'r') as fileA:
+    answers = json.load(fileA)
+print(answers)
+
+
+
 
 count = 0
 a = 1
+
+
 
 # main while loop of program that asks questions
 while count < 20:
@@ -35,6 +41,7 @@ while count < 20:
             print("please enter 'yes' or 'no' ")
     count += 1
     a += 1
+
 print(tagList)
 
 if count == 20:
@@ -54,6 +61,7 @@ if count == 20:
     # exists or needs creation
 print("what was the animal")
 animal = input("")
-answer = {animal: tagList}
-with open('answer.txt', 'w') as fileW:
-    fileW.write(json.dumps(answer))
+answerA = {"ID": len(answers)+1, animal: tagList}
+
+with open('answer.txt', 'a') as fileW:
+    fileW.write(json.dumps(answerA))
