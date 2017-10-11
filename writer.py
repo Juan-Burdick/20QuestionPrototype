@@ -21,6 +21,7 @@ q17 = {"question": "can it ride a skateboard", "yTag": "rideskateboard", "nTag":
 q18 = {"question": "does it live in the us", "yTag": "unitedstates", "nTag": "notunitedstates"}
 q19 = {"question": "does it have a good sense of smell", "yTag": "goodatsmell", "nTag": "badatsmell"}
 q20 = {"question": "does it have echo location", "yTag": "echolocator", "nTag": "noecholocator"}
+q21 = {"question": "is it usually around snow", "yTag": "snow", "nTag": "notSnow"}
 
 
 
