@@ -12,9 +12,9 @@ with open('file.txt', 'r') as fileQ:
     questions = json.load(fileQ)
 print(questions)
 # reads answer.txt and stores answers dict
-#with open('answer.txt', 'r') as fileA:
-#    answers = json.load(fileA)
-#print(answers)
+with open('answer.txt', 'r') as fileA:
+    answers = json.load(fileA)
+print(answers)
 
 
 
@@ -62,7 +62,7 @@ print(tagList)
     # exists or needs creation
 print("what was the animal")
 animal = input("")
-answerInput = {"ID": '1', animal: tagList}
+answerInput = {"ID": len(answers)-1, animal: tagList}
 
 with open('answer.txt', 'a') as fileW:
     fileW.write(json.dumps(answerInput))
