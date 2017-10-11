@@ -12,9 +12,9 @@ with open('file.txt', 'r') as fileQ:
     questions = json.load(fileQ)
 print(questions)
 # reads answer.txt and stores answers dict
-with open('answer.txt', 'r') as fileA:
-    answers = json.load(fileA)
-print(answers)
+#with open('answer.txt', 'r') as fileA:
+#    answers = json.load(fileA)
+#print(answers)
 
 
 
