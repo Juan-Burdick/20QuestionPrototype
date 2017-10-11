@@ -44,16 +44,17 @@ while count < 20:
 
 print(tagList)
 
-if count == 20:
-    for ans in answersWriteable:
-        strike = 0
-        for tag in tagList:
-            if strike >= (tagList.len/5):
-                del answersEditable["ans"]
-                break
-            elif tag in ans["tag"]:
-            else:
-                strike += 1
+
+#if count == 20:
+#    for ans in answersWriteable:
+#        strike = 0
+#        for tag in tagList:
+#            if strike >= (tagList.len/5):
+#                del answersEditable["ans"]
+#                break
+#            elif tag in ans["tag"]:
+#            else:
+#                strike += 1
 
 
 # makes questions with tagList and animal
@@ -61,7 +62,7 @@ if count == 20:
     # exists or needs creation
 print("what was the animal")
 animal = input("")
-answerA = {"ID": len(answers)+1, animal: tagList}
+answerA = {"ID": '1', animal: tagList}
 
 with open('answer.txt', 'a') as fileW:
     fileW.write(json.dumps(answerA))

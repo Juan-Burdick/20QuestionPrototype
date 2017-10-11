@@ -1,0 +1,1 @@
+{"ID": "1", "nonsense": ["nofur", "herbivore", "notail", "notfly", "land/air", "water/air", "notreptile", "notmammal", "noclimb", "no gills", "smallerthandog", "daytime", "notafrica", "wild", "carni/omni", "noShedSkin", "noskateboard", "notunitedstates", "badatsmell", "noecholocator"]}
