@@ -62,7 +62,7 @@ print(tagList)
     # exists or needs creation
 print("what was the animal")
 animal = input("")
-answerA = {"ID": '1', animal: tagList}
+answerInput = {"ID": '1', animal: tagList}
 
 with open('answer.txt', 'a') as fileW:
-    fileW.write(json.dumps(answerA))
+    fileW.write(json.dumps(answerInput))
