@@ -63,6 +63,13 @@ while cond != 0:
         cond = 0
     else:
         print("please enter 'yes' or 'no' ")
+
+if cond == 0:
+    print("What was the animal?")
+    rightAnimal = input("")
+    with open('answer.txt', 'a') as fileA:
+        fileA.write(json.dumps(questions))
+
 # makes questions with tagList and animal
     # needs if statement to decide if answer
     # exists or needs creation
