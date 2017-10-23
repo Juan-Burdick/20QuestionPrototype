@@ -32,8 +32,9 @@ iterator = 0  # iterative value
 localIterator = 0  # iterator for filling allTags
 tagList = []  # list to store question tags to access correct answers
 all_yTags = []  # allTags, loaded to check most common tag in answers
-yTagRarity = []  # sibling to allTags, contains rarity of each tag
-temp = {}  # for data transfer
+yTagRarity = [0]*20  # sibling to allTags, contains rarity of each tag
+temp = {}  # for data transfer in dict format
+tempList = []  # for data transfer in list format
 delValue = {}  # for removal
 
 #######################################################
@@ -127,31 +128,45 @@ while iterator < 20:
                 print(possibleAnswers)
 
         localIterator = 1  # reset iterator for use
+        tempList.clear()  # empty list for use
         # populate allTag list and initialize empty tagRarity list
         while localIterator <= len(unaskedQuestions):
             # load all questions so we can access the tags
             curQ = unaskedQuestions["question" + str(localIterator)]
-            all_yTags.append(curQ["yTag"])  # append tag for current question to allTags
-            if iterator == 0:
-                yTagRarity.append(0)  # append initial rarity of 0
+            tempList.append(curQ["yTag"])  # append tag for current question to allTags
             localIterator += 1  # move the iterator
-        print(all_yTags)  # debugging prints
-        print(yTagRarity)  # debugging prints
 
-#        localIterator = 0  # reset iterator for use
-#        # populate tagRarity with actual rarities
-#        while localIterator < len(possibleAnswers):
-            # access all possibleAnswers to check their tags
-#            ans = possibleAnswers["ID" + str(localIterator + 1)]
-#            subLocalIterator = 0  # reset for use
+        localIterator = 0  # reset iterator for use
+        tempIndex = 0  # index to store removal index for populating tag rarity
+        while localIterator < len(all_yTags):
+            if localIterator > len(tempList):
+                tempIndex = localIterator
+            elif all_yTags[localIterator] != tempList[localIterator]:
+                tempIndex = localIterator
+        all_yTags.clear()
+        all_yTags = list(tempList)
+        print(all_yTags)  # debugging prints
+
+        localIterator = 0  # reset iterator for use
+        tempList.clear()  # empty list for use
+        # populate tagRarity with actual rarities
+        while localIterator < len(all_yTags):
+            tempList.append(0)
+            subLocalIterator = 0  # reset for use
             # for currently accessed answer,
             # increment all rarities for tags that it has
-#            while subLocalIterator < len(all_yTags):
-                    # only increment rarity if the tag appears
-#                    if all_yTags[subLocalIterator] in ans["tag"]:
-#                        yTagRarity[subLocalIterator] += 1
-#                    subLocalIterator += 1  # move the iterator
-#            localIterator += 1  # move the iterator
+            while subLocalIterator < len(possibleAnswers):
+                # access all possibleAnswers to check their tags
+                ans = possibleAnswers["ID" + str(subLocalIterator + 1)]
+                # only increment rarity if the tag appears
+                if all_yTags[localIterator] in ans["tag"]:
+                    tempList[localIterator] += 1
+                subLocalIterator += 1  # move the iterator
+            localIterator += 1  # move the iterator
+        yTagRarity.pop(tempIndex)
+        yTagRarity += tempList
+
+        print(yTagRarity)  # debugging prints
 
         localIterator = 0  # reset iterator for use
         indexOfMostCommon = 0  # used to keep track of the most common tag
@@ -159,23 +174,23 @@ while iterator < 20:
         # find the index of the most common tag
         # so we can access it from the allTags list
         while localIterator < len(yTagRarity):
-                # if the currently accessed tag's rarity is higher
-                # than our current, replace current and save index
-                if yTagRarity[localIterator] > greatest:
-                    greatest = yTagRarity[localIterator]
-                    indexOfMostCommon = localIterator
-                localIterator += 1  # move the iterator
+            # if the currently accessed tag's rarity is higher
+            # than our current, replace current and save index
+            if yTagRarity[localIterator] > greatest:
+                greatest = yTagRarity[localIterator]
+                indexOfMostCommon = localIterator
+            localIterator += 1  # move the iterator
 
         localIterator = 1  # reset iterator for use
         # get the question associated with the most common tag
         while localIterator <= len(unaskedQuestions):
-                # sequentially access questions until
-                # we find the one associated with our tag
-                curQ = unaskedQuestions["question" + str(localIterator)]
-                if all_yTags[indexOfMostCommon] == curQ["yTag"]:  # found it
-                    qIndex = localIterator  # set our qIndex to this
-                    break  # found it, no need to keep looking
-                localIterator += 1  # move the iterator
+            # sequentially access questions until
+            # we find the one associated with our tag
+            curQ = unaskedQuestions["question" + str(localIterator)]
+            if all_yTags[indexOfMostCommon] == curQ["yTag"]:  # found it
+                qIndex = localIterator  # set our qIndex to this
+                break  # found it, no need to keep looking
+            localIterator += 1  # move the iterator
 
     ###################################################
     # Print question, receive input, reduce unanswered questions
