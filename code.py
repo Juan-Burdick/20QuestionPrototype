@@ -60,7 +60,6 @@ while iterator < 20:
     elif 5 <= iterator < 20:
 
         localIterator = 1  # reset iterator for use
-        subLocalIterator = 0  # reset iterator for use
         loopPart = 1  # used to determine which subsection of loop to be operating
         temp.clear()  # clear dict for a new temporary data set
         delValue.clear()  # dict of answers to remove from guess set
@@ -70,11 +69,13 @@ while iterator < 20:
         while localIterator <= (len(possibleAnswers)):
             # iterate through answers so we can check tag similarity
             ans = possibleAnswers["ID" + str(localIterator)]
+
             # loop part 1 populates the delValue array
             if (localIterator <= len(possibleAnswers)) and (loopPart == 1):
                 # determines how many explicit dissimilarities the
                 # currently accessed answer has from the tagList
                 strike = 0
+                subLocalIterator = 0  # reset iterator for use
                 # check each answer against all tags in tagList
                 # add to delValue for removal if dissimilarities >= 4
                 while subLocalIterator < len(tagList):
@@ -146,15 +147,15 @@ while iterator < 20:
         all_yTags.clear()
         all_yTags = list(tempList)
         print(all_yTags)  # debugging prints
+        yTagRarity.pop(tempIndex)
 
         localIterator = 0  # reset iterator for use
         tempList.clear()  # empty list for use
-        # populate tagRarity with actual rarities
+        # populate tempList with most recent rarity updates
         while localIterator < len(all_yTags):
             tempList.append(0)
             subLocalIterator = 0  # reset for use
-            # for currently accessed answer,
-            # increment all rarities for tags that it has
+            # for current answer, increment rarity for all tags that it has
             while subLocalIterator < len(possibleAnswers):
                 # access all possibleAnswers to check their tags
                 ans = possibleAnswers["ID" + str(subLocalIterator + 1)]
@@ -163,19 +164,20 @@ while iterator < 20:
                     tempList[localIterator] += 1
                 subLocalIterator += 1  # move the iterator
             localIterator += 1  # move the iterator
-        yTagRarity.pop(tempIndex)
-        yTagRarity += tempList
 
+        localIterator = 0  # reset iterator for use
+        # merge tempList updates into tagRarity
+        while localIterator < len(yTagRarity):
+            yTagRarity[localIterator] += tempList[localIterator]
+            localIterator += 1
         print(yTagRarity)  # debugging prints
 
         localIterator = 0  # reset iterator for use
         indexOfMostCommon = 0  # used to keep track of the most common tag
         greatest = 0  # used to find the most common tag
-        # find the index of the most common tag
-        # so we can access it from the allTags list
+        # find index of most common tag so it's accessible from the allTags list
         while localIterator < len(yTagRarity):
-            # if the currently accessed tag's rarity is higher
-            # than our current, replace current and save index
+            # if current tag's rarity is higher than greater, replace greater and save index
             if yTagRarity[localIterator] > greatest:
                 greatest = yTagRarity[localIterator]
                 indexOfMostCommon = localIterator
@@ -184,12 +186,13 @@ while iterator < 20:
         localIterator = 1  # reset iterator for use
         # get the question associated with the most common tag
         while localIterator <= len(unaskedQuestions):
-            # sequentially access questions until
-            # we find the one associated with our tag
+            # look through questions for the one associated with our tag
             curQ = unaskedQuestions["question" + str(localIterator)]
+
             if all_yTags[indexOfMostCommon] == curQ["yTag"]:  # found it
                 qIndex = localIterator  # set our qIndex to this
                 break  # found it, no need to keep looking
+
             localIterator += 1  # move the iterator
 
     ###################################################
@@ -197,6 +200,7 @@ while iterator < 20:
 
     questionCurrent = (unaskedQuestions["question" + str(qIndex)])
     print(str(iterator + 1) + ". " + questionCurrent["question"])
+
     cond = 1  # variable to ensure correct input
     # force correct input and add associated tag to tagList
     while cond != 0:
@@ -220,6 +224,7 @@ while iterator < 20:
     # update the running list of usable questions
     while localIterator <= len(unaskedQuestions):
         q = unaskedQuestions["question" + str(localIterator)]
+
         # if q isn't the 'current question'
         # and we haven't found the 'current question'
         # add q to the temporary dict
@@ -227,23 +232,21 @@ while iterator < 20:
             qTemp = {"question" + str(localIterator) : q}
             temp.update(qTemp)
         elif q is questionCurrent:
-            #if yTagRarity[localIterator - 1] != None:
-            #    yTagRarity.pop(localIterator - 1)
             skipPoint = 1  # found 'current question', acknowledge skipped index
-        # we found 'current question', now offset all added
-        # elements by one so we can fill the missed index
+        # found current q, now offset all elements by one to fill the missed index
         elif (q is not questionCurrent) and (skipPoint == 1):
             qTemp = {"question" + str(localIterator - 1): q}
             temp.update(qTemp)
+
         localIterator += 1  # move the iterator
     unaskedQuestions = dict(temp)  # load temp into unaskedQuestions
+
     iterator += 1  # move the iterator
 
 #######################################################
 # Selecting guesses, receiving input, and adding to answers
 #######################################################
 
-###################################################
 # Select guesses and receive correct input
 
 localIterator = 1  # reset iterator for use
@@ -257,10 +260,10 @@ while localIterator <= (len(possibleAnswers) + 1):
     ans = possibleAnswers["ID" + str(localIterator)]
     # dict of answers to remove from guess set
     delValue = {}
+
     # loop part 1 populates the delValue array
     if (localIterator <= len(possibleAnswers)) and (loopPart == 1):
-        # determines how many explicit dissimilarities the
-        # currently accessed answer has from the tagList
+        # tracks how many diff the current answer has from tagList
         strike = 0
         # check each answer against all tags in tagList
         # add to delValue for removal if dissimilarities >= 4
@@ -275,17 +278,16 @@ while localIterator <= (len(possibleAnswers) + 1):
                         strike += 1  # found an error, increment strikes
                     subLocalIterator += 1  # move the iterator
         localIterator += 1  # move the iterator
-        # have we reached the end of the while loop?
-        # If so, reset and move to second part of loop
+        # if we've reached end of loop, reset and go to loop part 2
         if localIterator == (len(possibleAnswers) + 1):
             localIterator = 1
             loopPart = 2
-    # loop part 2 uses delValue to remove
-    # selected answers from possibleAnswers
+    # loop part 2 uses delValue to remove selected answers from possibleAnswers
     if (localIterator <= len(possibleAnswers)) and (loopPart == 2):
         subLocalIterator = 0  # reset iterator for use
         # used to acknowledge the skipped index for the value we removed
         skipPoint = 0
+
         # loop for each answer to be removed in delValue
         while subLocalIterator < len(delValue):
                     toDelete = delValue["ID" + str(subLocalIterator)]
@@ -297,8 +299,7 @@ while localIterator <= (len(possibleAnswers) + 1):
                         temp.update(aTemp)
                     elif ans is toDelete:
                         skipPoint = 1  # found toDelete, acknowledge skipped index
-                    # we found toDelete, now offset all added elements
-                    # by one so we can fill the missed index
+                    # found toDelete, offset remaining elements by one to fill gap
                     if (ans is not toDelete) and (skipPoint == 1):
                         aTemp = {"ID" + str(localIterator - 1): ans}
                         temp.update(aTemp)
@@ -338,6 +339,7 @@ if endCond == -1:
     rightAnimal.lower()  # standardizes input
     localIterator = 1  # reset iterator for use
     exists = 0  # variable to avoid adding a duplicate answer
+
     # check to see if answer already exists, and update it if so
     while localIterator <= len(answers):
         ans = answers["ID" + str(localIterator)]
@@ -355,6 +357,7 @@ if endCond == -1:
         animalID = "ID" + str(len(answers))  # generate new answer's ID
         answerToWrite = {animalID : animal}  # create dict to add
         answers.update(answerToWrite)  # append new answer to file
+
     # rewrite all answers, including new answer, to the existing file
     with open('answer.txt', 'w') as fileW:
         fileW.write(json.dumps(answers))
