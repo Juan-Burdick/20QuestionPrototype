@@ -94,6 +94,7 @@ while iterator < 20:
                 if localIterator == (len(possibleAnswers)):
                     localIterator = 1
                     loopPart = 2
+                    print(delValue)
             # loop part 2 uses delValue to remove
             # selected answers from possibleAnswers
             if (localIterator <= len(possibleAnswers)) and (loopPart == 2):
