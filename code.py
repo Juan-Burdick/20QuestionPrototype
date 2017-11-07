@@ -63,6 +63,7 @@ while iterator < 20:
         loopPart = 1  # used to determine which subsection of loop to be operating
         temp.clear()  # clear dict for a new temporary data set
         delValue.clear()  # dict of answers to remove from guess set
+        delValueIndex = 0  # used to keep track of the index value when adding to delValue
         neededUpdate = 1  # for determining if the dict needed updating
         # update the running list of possible answers
         # @param possibleAnswers
@@ -82,8 +83,9 @@ while iterator < 20:
                     tag = tagList[subLocalIterator]
                     if strike >= 4:
                         # create a temporary dict to match top-level fileType
-                        aTemp = {"ID" + str(localIterator): ans}
+                        aTemp = {"ID" + str(delValueIndex): ans}
                         delValue.update(aTemp)
+                        delValueIndex += 1
                         break  # it already failed, no need to check the rest
                     elif tag not in ans["tag"]:
                         strike += 1  # found an error, increment strikes
