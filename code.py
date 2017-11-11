@@ -96,6 +96,7 @@ while iterator < 20:
                 if localIterator == (len(possibleAnswers)):
                     localIterator = 1
                     loopPart = 2
+                    ans = possibleAnswers["ID" + str(localIterator)]
                     print(delValue)
             # loop part 2 uses delValue to remove
             # selected answers from possibleAnswers
@@ -110,14 +111,16 @@ while iterator < 20:
                         # as long as answer isn't toDelete
                         # and we haven't found toDelete yet
                         # add answer to temporary array
-                        if (ans is not toDelete) and (skipPoint == 0):
+                        # print(ans)
+                        # print(toDelete)
+                        if (ans != toDelete) and (skipPoint == 0):
                             aTemp = {"ID" + str(localIterator): ans}
                             temp.update(aTemp)
-                        elif ans is toDelete:
+                        elif ans == toDelete:
                             skipPoint = 1  # found toDelete, acknowledge skipped index
                         # we found toDelete, now offset all added elements
                         # by one so we can fill the missed index
-                        if (ans is not toDelete) and (skipPoint == 1):
+                        elif (ans != toDelete) and (skipPoint == 1):
                             aTemp = {"ID" + str(localIterator - 1): ans}
                             temp.update(aTemp)
                         subLocalIterator += 1  # move the iterator
@@ -130,6 +133,9 @@ while iterator < 20:
                     possibleAnswers = dict(temp)  # load temp into possible answers
                 localIterator += 1  # we're done, iterate to exit
                 print(possibleAnswers)
+        print(possibleAnswers)
+        possibleAnswers = dict(temp)
+        print(possibleAnswers)
 
         localIterator = 1  # reset iterator for use
         tempList.clear()  # empty list for use
