@@ -64,7 +64,7 @@ while iterator < 20:
         temp.clear()  # clear dict for a new temporary data set
         delValue.clear()  # dict of answers to remove from guess set
         delValueIndex = 0  # used to keep track of the index value when adding to delValue
-        neededUpdate = 1  # for determining if the dict needed updating
+        neededUpdate = 0  # for determining if the dict needed updating
         # update the running list of possible answers
         # @param possibleAnswers
         while localIterator <= (len(possibleAnswers)):
@@ -97,16 +97,19 @@ while iterator < 20:
                     localIterator = 1
                     loopPart = 2
                     ans = possibleAnswers["ID" + str(localIterator)]
-                    print(delValue)
+                    print("delValue" + str(delValue))
+                    if delValue:
+                        neededUpdate = 1
             # loop part 2 uses delValue to remove
             # selected answers from possibleAnswers
-            if (localIterator <= len(possibleAnswers)) and (loopPart == 2):
+            if (localIterator <= len(possibleAnswers)) and (loopPart == 2) and (neededUpdate == 1):
                 subLocalIterator = 0  # reset iterator for use
                 # used to acknowledge the skipped index for the value we removed
                 skipPoint = 0
                 # loop for each answer to be removed in delValue
                 if bool(delValue):
-                    while subLocalIterator < len(delValue):
+                    wasInDelValue = 1
+                    while (subLocalIterator < len(delValue)) and (wasInDelValue == 1):
                         toDelete = delValue["ID" + str(subLocalIterator)]
                         # as long as answer isn't toDelete
                         # and we haven't found toDelete yet
@@ -128,14 +131,14 @@ while iterator < 20:
                 else:
                     neededUpdate = 0  # didn't need update
                     localIterator += 1 # move the iterator
-            elif localIterator == (len(possibleAnswers)):
-                if neededUpdate == 1:
-                    possibleAnswers = dict(temp)  # load temp into possible answers
+            if localIterator == (len(possibleAnswers)) and (neededUpdate == 1):
+                print("temp" + str(temp))
+                possibleAnswers = dict(temp)  # load temp into possible answers
                 localIterator += 1  # we're done, iterate to exit
-                print(possibleAnswers)
-        print(possibleAnswers)
-        possibleAnswers = dict(temp)
-        print(possibleAnswers)
+                print("inside answers" + str(possibleAnswers))
+            else:
+                localIterator += 1  # didn't need to update, iterate to exit
+        print("outside answers" + str(possibleAnswers))
 
         localIterator = 1  # reset iterator for use
         tempList.clear()  # empty list for use
