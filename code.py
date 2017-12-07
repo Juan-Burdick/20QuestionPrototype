@@ -32,10 +32,176 @@ iterator = 0  # iterative value
 localIterator = 0  # iterator for filling allTags
 tagList = []  # list to store question tags to access correct answers
 all_yTags = []  # allTags, loaded to check most common tag in answers
-yTagRarity = [0]*20  # sibling to allTags, contains rarity of each tag
+yTagRarity = [0]  # sibling to allTags, contains rarity of each tag
 temp = {}  # for data transfer in dict format
 tempList = []  # for data transfer in list format
 delValue = {}  # for removal
+
+#######################################################
+# Functions
+#######################################################
+
+
+def update_possible_answers():
+
+    global possibleAnswers
+
+    local_iterator = 0
+
+    while local_iterator <= (len(possibleAnswers) + 1):
+        # iterate through answers so we can check tag similarity
+        ans = possibleAnswers["ID" + str(localIterator)]
+        # dict of answers to remove from guess set
+        delValue = {}
+
+        # loop part 1 populates the delValue array
+        if (localIterator <= len(possibleAnswers)) and (loopPart == 1):
+            # tracks how many diff the current answer has from tagList
+            strike = 0
+            # check each answer against all tags in tagList
+            # add to delValue for removal if dissimilarities >= 4
+            while subLocalIterator < len(tagList):
+                tag = tagList[subLocalIterator]
+                if strike >= 4:
+                    # create a temporary dict to match top-level fileType
+                    aTemp = {"ID" + str(subLocalIterator): ans}
+                    delValue.update(aTemp)
+                    break  # it already failed, no need to check the rest
+                elif tag not in ans["tag"]:
+                    strike += 1  # found an error, increment strikes
+                subLocalIterator += 1  # move the iterator
+            localIterator += 1  # move the iterator
+            # if we've reached end of loop, reset and go to loop part 2
+            if localIterator == (len(possibleAnswers) + 1):
+                localIterator = 1
+                loopPart = 2
+        # loop part 2 uses delValue to remove selected answers from possibleAnswers
+        if (localIterator <= len(possibleAnswers)) and (loopPart == 2):
+            subLocalIterator = 0  # reset iterator for use
+            # used to acknowledge the skipped index for the value we removed
+            skipPoint = 0
+
+            # loop for each answer to be removed in delValue
+            while subLocalIterator < len(delValue):
+                toDelete = delValue["ID" + str(subLocalIterator)]
+                # as long as answer isn't toDelete
+                # and we haven't found toDelete yet
+                # add answer to temporary array
+                if (ans is not toDelete) and (skipPoint == 0):
+                    aTemp = {"ID" + str(localIterator): ans}
+                    temp.update(aTemp)
+                elif ans is toDelete:
+                    skipPoint = 1  # found toDelete, acknowledge skipped index
+                # found toDelete, offset remaining elements by one to fill gap
+                if (ans is not toDelete) and (skipPoint == 1):
+                    aTemp = {"ID" + str(localIterator - 1): ans}
+                    temp.update(aTemp)
+                subLocalIterator += 1  # move the iterator
+            localIterator += 1  # move the iterator
+        elif localIterator == (len(possibleAnswers) + 1):
+            possibleAnswers = dict(temp)  # load temp into possible answers
+            localIterator += 1  # we're done, iterate to exit
+
+
+def new_update_possible_answers():
+
+    global possibleAnswers
+
+    local_iterator = 0
+    del_value = {}  # dictionary of answers to remove from possibleAnswers
+
+    # populate del_value dict
+    while local_iterator <= (len(possibleAnswers) + 1):
+        # iterate through answers so we can check tag similarity
+        ans = possibleAnswers["ID" + str(local_iterator)]
+        strike = 0  # tracks how many different tags the current answer has from tagList
+        temp_iterator = 0  # temporary iterator
+        # check each answer against all tags in tagList
+        # add to delValue for removal if dissimilarities >= 4
+        while temp_iterator < len(tagList):
+            tag = tagList[subLocalIterator]
+            if strike >= 4:
+                # create a temporary dict to match top-level fileType
+                aTemp = {"ID" + str(subLocalIterator): ans}
+                delValue.update(aTemp)
+                break  # it already failed, no need to check the rest
+            elif tag not in ans["tag"]:
+                strike += 1  # found an error, increment strikes
+            subLocalIterator += 1  # move the iterator
+        localIterator += 1  # move the iterator
+
+
+def update_tag_data():
+
+    global unaskedQuestions  # bring in unaskedQuestions to get all tags associated with them
+    global possibleAnswers  # bring in possibleAnswers to find the most relevant tag (and associated question)
+
+    local_iterator = 1
+    index_of_most_common = 0  # index of the most common tag
+    all_tags = []  # list of all tags associated with unasked questions, reset whenever function is run
+    tag_rarity = []  # list of tag rarities, on a 1-to-1 with all_tags, reset whenever function is run
+
+    all_tags.clear()  # empty list for use
+    # populate all_tags list
+    while local_iterator <= len(unaskedQuestions):
+        # load each questions so we can access the associated tags
+        current_question = unaskedQuestions["question" + str(local_iterator)]
+        all_tags.append(current_question["yTag"])  # append yTag for current question to all_tags
+        all_tags.append(current_question["nTag"])  # append nTag for current question to all_tags
+        local_iterator += 1  # move the iterator
+
+    local_iterator = 0  # reset the iterator for use
+    # populate the tag_rarity list
+    while local_iterator < len(all_tags):
+        tag_rarity.append(0)  # create a new entry for this tag
+        temp_iterator = 1  # create a temporary iterator
+        # check every answer in possibleAnswers
+        while temp_iterator <= len(possibleAnswers):
+            current_answer = possibleAnswers["ID" + str(temp_iterator)]
+            current_answer_tags = list(current_answer["tag"])  # access the tags for currently accessed answer
+            sub_iterator = 0  # nested temporary iterator
+            # check every tag in currently accessed answer for occurrence of current tag from all_tags
+            while sub_iterator < len(current_answer_tags):
+                # if we found an instance of the tag, increment the rarity
+                if all_tags[local_iterator] == current_answer_tags[sub_iterator]:
+                    tag_rarity[local_iterator] += 1
+                sub_iterator += 1  # move the iterator
+            temp_iterator += 1  # move the iterator
+        local_iterator += 1  # move the iterator
+
+    local_iterator = 0  # reset the iterator for use
+    # find the most common tag
+    while local_iterator < len(tag_rarity):
+        # if the value of the currently accessed tag
+        # is greater than the value of the tag
+        # at current greatest value index,
+        # move the index to currently accessed tag
+        if tag_rarity[local_iterator] > tag_rarity[index_of_most_common]:
+            index_of_most_common = local_iterator
+        local_iterator += 1  # move the iterator
+
+    # return the tag at the index with the highest value
+    return all_tags[index_of_most_common]
+
+
+def select_question(most_common_tag):
+
+    global unaskedQuestions  # bring in unaskedQuestions to compare their tags to most_common_tag
+
+    local_iterator = 1
+    # get an index for the question associated with the most common tag
+    while local_iterator <= len(unaskedQuestions):
+        # look through questions for the one associated with our tag
+        current_question = unaskedQuestions["question" + str(local_iterator)]
+        # if the currently accessed question's yTag is the most common tag, return this index
+        if current_question["yTag"] == most_common_tag:
+            return local_iterator
+        # if the currently accessed question's nTag is the most common tag, return this index
+        elif current_question["nTag"] == most_common_tag:
+            return local_iterator
+        local_iterator += 1  # move the iterator
+    return 1  # if something breaks and index isn't found, return 1 by default
+
 
 #######################################################
 # Main execution: While loop
@@ -51,13 +217,13 @@ while iterator < 20:
     # Selector (random at first, then semi-intelligent)
 
     # randomly generate the first 5 questions to get a baseline
-    if iterator < 5:
+    if iterator < 1:
         # generates a random index for a question to be accessed
         for x in range(1):
             qIndex = random.randint(1, len(unaskedQuestions))
 
     # intelligently select the remaining questions
-    elif 5 <= iterator < 20:
+    elif 1 <= iterator < 20:
 
         localIterator = 1  # reset iterator for use
         loopPart = 1  # used to determine which subsection of loop to be operating
@@ -140,72 +306,8 @@ while iterator < 20:
                 localIterator += 1  # didn't need to update, iterate to exit
         print("outside answers" + str(possibleAnswers))
 
-        localIterator = 1  # reset iterator for use
-        tempList.clear()  # empty list for use
-        # populate allTag list and initialize empty tagRarity list
-        while localIterator <= len(unaskedQuestions):
-            # load all questions so we can access the tags
-            curQ = unaskedQuestions["question" + str(localIterator)]
-            tempList.append(curQ["yTag"])  # append tag for current question to allTags
-            localIterator += 1  # move the iterator
-
-        localIterator = 0  # reset iterator for use
-        tempIndex = 0  # index to store removal index for populating tag rarity
-        while localIterator < len(all_yTags):
-            if localIterator > len(tempList):
-                tempIndex = localIterator
-            elif all_yTags[localIterator] != tempList[localIterator]:
-                tempIndex = localIterator
-        all_yTags.clear()
-        all_yTags = list(tempList)
-        print(all_yTags)  # debugging prints
-        yTagRarity.pop(tempIndex)
-
-        localIterator = 0  # reset iterator for use
-        tempList.clear()  # empty list for use
-        # populate tempList with most recent rarity updates
-        while localIterator < len(all_yTags):
-            tempList.append(0)
-            subLocalIterator = 0  # reset for use
-            # for current answer, increment rarity for all tags that it has
-            while subLocalIterator < len(possibleAnswers):
-                # access all possibleAnswers to check their tags
-                ans = possibleAnswers["ID" + str(subLocalIterator + 1)]
-                # only increment rarity if the tag appears
-                if all_yTags[localIterator] in ans["tag"]:
-                    tempList[localIterator] += 1
-                subLocalIterator += 1  # move the iterator
-            localIterator += 1  # move the iterator
-
-        localIterator = 0  # reset iterator for use
-        # merge tempList updates into tagRarity
-        while localIterator < len(yTagRarity):
-            yTagRarity[localIterator] += tempList[localIterator]
-            localIterator += 1
-        print(yTagRarity)  # debugging prints
-
-        localIterator = 0  # reset iterator for use
-        indexOfMostCommon = 0  # used to keep track of the most common tag
-        greatest = 0  # used to find the most common tag
-        # find index of most common tag so it's accessible from the allTags list
-        while localIterator < len(yTagRarity):
-            # if current tag's rarity is higher than greater, replace greater and save index
-            if yTagRarity[localIterator] > greatest:
-                greatest = yTagRarity[localIterator]
-                indexOfMostCommon = localIterator
-            localIterator += 1  # move the iterator
-
-        localIterator = 1  # reset iterator for use
-        # get the question associated with the most common tag
-        while localIterator <= len(unaskedQuestions):
-            # look through questions for the one associated with our tag
-            curQ = unaskedQuestions["question" + str(localIterator)]
-
-            if all_yTags[indexOfMostCommon] == curQ["yTag"]:  # found it
-                qIndex = localIterator  # set our qIndex to this
-                break  # found it, no need to keep looking
-
-            localIterator += 1  # move the iterator
+        mostCommonTag = update_tag_data()
+        qIndex = select_question(mostCommonTag)
 
     ###################################################
     # Print question, receive input, reduce unanswered questions
