@@ -4,6 +4,7 @@
 
 import json
 import random
+import copy
 
 #######################################################
 # FILE I/O
@@ -27,123 +28,99 @@ possibleAnswers = dict(answers)
 #######################################################
 
 qIndex = 0  # index of currently accessed question
-aIndex = 0  # index of answer to guess
 iterator = 0  # iterative value
-localIterator = 0  # iterator for filling allTags
 tagList = []  # list to store question tags to access correct answers
-all_yTags = []  # allTags, loaded to check most common tag in answers
-yTagRarity = [0]  # sibling to allTags, contains rarity of each tag
-temp = {}  # for data transfer in dict format
-tempList = []  # for data transfer in list format
-delValue = {}  # for removal
+deleteThis = []  # list of ids of answers to remove from possible answers
 
 #######################################################
 # Functions
 #######################################################
 
 
+# populate the array of ids to delete from possibleAnswers
+def populate_delete_this():
+    global possibleAnswers  # access global possibleAnswers to see if any of them no longer meet the criteria
+    global deleteThis  # global array of ids of answers to remove, populated here and accessed elsewhere
+    local_iterator = 1  # iterator
+
+    if len(tagList) >= 4:  # if tagList is shorter than 4, nothing can strike out, so don't bother
+        # check each answer to if it strikes out
+        while local_iterator <= len(possibleAnswers):
+            if check_for_removal(local_iterator):
+                # this answer needs to go, add its index to the deleteThis array
+                deleteThis.append(("ID" + str(local_iterator)))
+            local_iterator += 1  # move the iterator
+        # print("possibleAnswers in populate_delete_this: " + str(possibleAnswers))
+        # print("deleteThis in populate_delete_this: " + str(deleteThis))
+
+
+# for the answer at the passed index, return true if it has too many dissimilarities to tagList (default = 4)
+def check_for_removal(index):
+    global possibleAnswers  # needed to access the answer at passed index
+    global tagList  # needed to check tag-sequence similarity
+    strikes = 0  # number of tags in tagList that the answer does not have
+    local_iterator = 0  # iterator
+
+    ans = possibleAnswers["ID" + str(index)]  # the one answer we're working with
+
+    # for each tag in tagList, check to see if it's in the answer's tags
+    while local_iterator < len(tagList):
+        tag = tagList[local_iterator]
+        if strikes >= 4:  # this answer has 4 strikes, remove it
+            return True
+        elif tag not in ans["tag"]:  # found a dissimilarity, increment strikes
+            strikes += 1
+        local_iterator += 1  # move the iterator
+    return False  # total strikes were under 4, this answer should stay
+
+
+# update the running list of possible answers
 def update_possible_answers():
+    global possibleAnswers  # needed to refresh
+    global deleteThis  # needed to know which values to delete
+    local_iterator = 0  # iterator
+    some_var = (len(possibleAnswers))  # maintains length of possible answers pre-delete for re-sequencing after delete
 
-    global possibleAnswers
-
-    local_iterator = 0
-
-    while local_iterator <= (len(possibleAnswers) + 1):
-        # iterate through answers so we can check tag similarity
-        ans = possibleAnswers["ID" + str(localIterator)]
-        # dict of answers to remove from guess set
-        delValue = {}
-
-        # loop part 1 populates the delValue array
-        if (localIterator <= len(possibleAnswers)) and (loopPart == 1):
-            # tracks how many diff the current answer has from tagList
-            strike = 0
-            # check each answer against all tags in tagList
-            # add to delValue for removal if dissimilarities >= 4
-            while subLocalIterator < len(tagList):
-                tag = tagList[subLocalIterator]
-                if strike >= 4:
-                    # create a temporary dict to match top-level fileType
-                    aTemp = {"ID" + str(subLocalIterator): ans}
-                    delValue.update(aTemp)
-                    break  # it already failed, no need to check the rest
-                elif tag not in ans["tag"]:
-                    strike += 1  # found an error, increment strikes
-                subLocalIterator += 1  # move the iterator
-            localIterator += 1  # move the iterator
-            # if we've reached end of loop, reset and go to loop part 2
-            if localIterator == (len(possibleAnswers) + 1):
-                localIterator = 1
-                loopPart = 2
-        # loop part 2 uses delValue to remove selected answers from possibleAnswers
-        if (localIterator <= len(possibleAnswers)) and (loopPart == 2):
-            subLocalIterator = 0  # reset iterator for use
-            # used to acknowledge the skipped index for the value we removed
-            skipPoint = 0
-
-            # loop for each answer to be removed in delValue
-            while subLocalIterator < len(delValue):
-                toDelete = delValue["ID" + str(subLocalIterator)]
-                # as long as answer isn't toDelete
-                # and we haven't found toDelete yet
-                # add answer to temporary array
-                if (ans is not toDelete) and (skipPoint == 0):
-                    aTemp = {"ID" + str(localIterator): ans}
-                    temp.update(aTemp)
-                elif ans is toDelete:
-                    skipPoint = 1  # found toDelete, acknowledge skipped index
-                # found toDelete, offset remaining elements by one to fill gap
-                if (ans is not toDelete) and (skipPoint == 1):
-                    aTemp = {"ID" + str(localIterator - 1): ans}
-                    temp.update(aTemp)
-                subLocalIterator += 1  # move the iterator
-            localIterator += 1  # move the iterator
-        elif localIterator == (len(possibleAnswers) + 1):
-            possibleAnswers = dict(temp)  # load temp into possible answers
-            localIterator += 1  # we're done, iterate to exit
+    if deleteThis:  # only run if there's even anything to delete
+        while local_iterator < (len(deleteThis)):  # for each index in deleteThis list
+            if (deleteThis[local_iterator]) in possibleAnswers:  # if this index even exists
+                del possibleAnswers[deleteThis[local_iterator]]  # delete index corresponding to current index
+            local_iterator += 1  # move the iterator
+        reindex_possible_answers(some_var)  # compress the indices, pass the old size so the top doesn't get deleted
+        # print("possibleAnswers in update_possible_answers: " + str(possibleAnswers))
+        # print("deleteThis in update_possible_answers: " + str(deleteThis))
 
 
-def new_update_possible_answers():
+# compress the indices of possible answers so they form a solid sequence from 1-1+
+def reindex_possible_answers(old_length):
+    global possibleAnswers  # needed to reset
+    local_iterator = 1  # iterator
+    temp = {}  # temporarily hold re-indexed possibleAnswers
+    temp.clear()  # ensure it's clear
+    new_indices = 1  # count incremented for each added element to ensure a linear progress of indices
+    # print("possibleAnswers in reindex_possible_answers before: " + str(possibleAnswers))
 
-    global possibleAnswers
-
-    local_iterator = 0
-    del_value = {}  # dictionary of answers to remove from possibleAnswers
-
-    # populate del_value dict
-    while local_iterator <= (len(possibleAnswers) + 1):
-        # iterate through answers so we can check tag similarity
-        ans = possibleAnswers["ID" + str(local_iterator)]
-        strike = 0  # tracks how many different tags the current answer has from tagList
-        temp_iterator = 0  # temporary iterator
-        # check each answer against all tags in tagList
-        # add to delValue for removal if dissimilarities >= 4
-        while temp_iterator < len(tagList):
-            tag = tagList[subLocalIterator]
-            if strike >= 4:
-                # create a temporary dict to match top-level fileType
-                aTemp = {"ID" + str(subLocalIterator): ans}
-                delValue.update(aTemp)
-                break  # it already failed, no need to check the rest
-            elif tag not in ans["tag"]:
-                strike += 1  # found an error, increment strikes
-            subLocalIterator += 1  # move the iterator
-        localIterator += 1  # move the iterator
+    while local_iterator <= old_length:  # for each element before deletion - ensures we visit every index
+        if ("ID" + str(local_iterator)) in possibleAnswers:  # if this element still exists, add it to temp
+            ans = possibleAnswers["ID" + str(local_iterator)]  # access the current answer
+            temp.update({("ID" + str(new_indices)): ans})  # add current answer to temp with next index in line
+            new_indices += 1  # increment for next index to add
+        local_iterator += 1  # move the iterator
+    possibleAnswers = copy.deepcopy(temp)  # deepcopy to ensure proper transmission of nested dicts
+    # print("possibleAnswers in reindex_possible_answers after: " + str(possibleAnswers))
 
 
+# create a temporary list of tags associated with unasked questions, and their associated rarity
 def update_tag_data():
-
     global unaskedQuestions  # bring in unaskedQuestions to get all tags associated with them
     global possibleAnswers  # bring in possibleAnswers to find the most relevant tag (and associated question)
-
-    local_iterator = 1
+    local_iterator = 1  # iterator
     index_of_most_common = 0  # index of the most common tag
     all_tags = []  # list of all tags associated with unasked questions, reset whenever function is run
     tag_rarity = []  # list of tag rarities, on a 1-to-1 with all_tags, reset whenever function is run
 
     all_tags.clear()  # empty list for use
-    # populate all_tags list
-    while local_iterator <= len(unaskedQuestions):
+    while local_iterator <= len(unaskedQuestions):  # populate all_tags list
         # load each questions so we can access the associated tags
         current_question = unaskedQuestions["question" + str(local_iterator)]
         all_tags.append(current_question["yTag"])  # append yTag for current question to all_tags
@@ -151,12 +128,10 @@ def update_tag_data():
         local_iterator += 1  # move the iterator
 
     local_iterator = 0  # reset the iterator for use
-    # populate the tag_rarity list
-    while local_iterator < len(all_tags):
-        tag_rarity.append(0)  # create a new entry for this tag
+    while local_iterator < len(all_tags):  # populate the tag_rarity list
+        tag_rarity.append(0)  # create a new rarity entry for this tag
         temp_iterator = 1  # create a temporary iterator
-        # check every answer in possibleAnswers
-        while temp_iterator <= len(possibleAnswers):
+        while temp_iterator <= len(possibleAnswers):  # check every answer in possibleAnswers
             current_answer = possibleAnswers["ID" + str(temp_iterator)]
             current_answer_tags = list(current_answer["tag"])  # access the tags for currently accessed answer
             sub_iterator = 0  # nested temporary iterator
@@ -170,27 +145,23 @@ def update_tag_data():
         local_iterator += 1  # move the iterator
 
     local_iterator = 0  # reset the iterator for use
-    # find the most common tag
-    while local_iterator < len(tag_rarity):
-        # if the value of the currently accessed tag
-        # is greater than the value of the tag
-        # at current greatest value index,
-        # move the index to currently accessed tag
+    while local_iterator < len(tag_rarity):  # find the most common tag
+        # if value of current is greater than
+        # current greatest, move index
         if tag_rarity[local_iterator] > tag_rarity[index_of_most_common]:
             index_of_most_common = local_iterator
         local_iterator += 1  # move the iterator
 
-    # return the tag at the index with the highest value
+    # return the tag at the index with the highest rarity value
     return all_tags[index_of_most_common]
 
 
+# find the question associated with the passed tag
 def select_question(most_common_tag):
-
     global unaskedQuestions  # bring in unaskedQuestions to compare their tags to most_common_tag
+    local_iterator = 1  # iterator
 
-    local_iterator = 1
-    # get an index for the question associated with the most common tag
-    while local_iterator <= len(unaskedQuestions):
+    while local_iterator <= len(unaskedQuestions):  # get index for question associated with most common tag
         # look through questions for the one associated with our tag
         current_question = unaskedQuestions["question" + str(local_iterator)]
         # if the currently accessed question's yTag is the most common tag, return this index
@@ -203,6 +174,25 @@ def select_question(most_common_tag):
     return 1  # if something breaks and index isn't found, return 1 by default
 
 
+# update the running list of unasked questions by removing the most recently asked question
+def update_unasked_questions(index_of_just_asked):
+    global unaskedQuestions  # needed to remove latest question
+    local_iterator = 1  # iterator
+    temp = {}  # temporarily holds re-indexed unaskedQuestions
+    temp.clear()  # ensures dict is clear for new data
+    new_indices = 1  # count incremented for each added element to ensure a linear progress of indices
+
+    del unaskedQuestions[("question" + str(index_of_just_asked))]  # delete the most recent question
+    while local_iterator <= (len(unaskedQuestions) + 1):  # access each question, and add 1 bc our dict shortened
+        if ("question" + str(local_iterator)) in unaskedQuestions:  # if this element still exists, add it to temp
+            question = unaskedQuestions["question" + str(local_iterator)]  # access the current question
+            temp.update({("question" + str(new_indices)): question})  # add current q to temp with next index in line
+            new_indices += 1  # increment for next index to add
+        local_iterator += 1  # move the iterator
+    unaskedQuestions = copy.deepcopy(temp)  # deepcopy to ensure proper transmission of nested dicts
+    # print("unaskedQuestions: " + str(unaskedQuestions))
+
+
 #######################################################
 # Main execution: While loop
 #######################################################
@@ -212,105 +202,19 @@ print("Welcome to the game. I believe " +
 
 # main while loop of program that asks questions
 while iterator < 20:
-
-    ###################################################
-    # Selector (random at first, then semi-intelligent)
-
-    # randomly generate the first 5 questions to get a baseline
-    if iterator < 1:
+    # randomly generate the first 3 questions to get a baseline
+    if iterator < 3:
         # generates a random index for a question to be accessed
         for x in range(1):
             qIndex = random.randint(1, len(unaskedQuestions))
 
     # intelligently select the remaining questions
-    elif 1 <= iterator < 20:
-
-        localIterator = 1  # reset iterator for use
-        loopPart = 1  # used to determine which subsection of loop to be operating
-        temp.clear()  # clear dict for a new temporary data set
-        delValue.clear()  # dict of answers to remove from guess set
-        delValueIndex = 0  # used to keep track of the index value when adding to delValue
-        neededUpdate = 0  # for determining if the dict needed updating
-        # update the running list of possible answers
-        # @param possibleAnswers
-        while localIterator <= (len(possibleAnswers)):
-            # iterate through answers so we can check tag similarity
-            ans = possibleAnswers["ID" + str(localIterator)]
-
-            # loop part 1 populates the delValue array
-            if (localIterator <= len(possibleAnswers)) and (loopPart == 1):
-                # determines how many explicit dissimilarities the
-                # currently accessed answer has from the tagList
-                strike = 0
-                subLocalIterator = 0  # reset iterator for use
-                # check each answer against all tags in tagList
-                # add to delValue for removal if dissimilarities >= 4
-                while subLocalIterator < len(tagList):
-                    tag = tagList[subLocalIterator]
-                    if strike >= 4:
-                        # create a temporary dict to match top-level fileType
-                        aTemp = {"ID" + str(delValueIndex): ans}
-                        delValue.update(aTemp)
-                        delValueIndex += 1
-                        break  # it already failed, no need to check the rest
-                    elif tag not in ans["tag"]:
-                        strike += 1  # found an error, increment strikes
-                    subLocalIterator += 1  # move the iterator
-                localIterator += 1  # move the iterator
-                # have we reached the end of the while loop?
-                # If so, reset and move to second part of loop
-                if localIterator == (len(possibleAnswers)):
-                    localIterator = 1
-                    loopPart = 2
-                    ans = possibleAnswers["ID" + str(localIterator)]
-                    print("delValue" + str(delValue))
-                    if delValue:
-                        neededUpdate = 1
-            # loop part 2 uses delValue to remove
-            # selected answers from possibleAnswers
-            if (localIterator <= len(possibleAnswers)) and (loopPart == 2) and (neededUpdate == 1):
-                subLocalIterator = 0  # reset iterator for use
-                # used to acknowledge the skipped index for the value we removed
-                skipPoint = 0
-                # loop for each answer to be removed in delValue
-                if bool(delValue):
-                    wasInDelValue = 1
-                    while (subLocalIterator < len(delValue)) and (wasInDelValue == 1):
-                        toDelete = delValue["ID" + str(subLocalIterator)]
-                        # as long as answer isn't toDelete
-                        # and we haven't found toDelete yet
-                        # add answer to temporary array
-                        # print(ans)
-                        # print(toDelete)
-                        if (ans != toDelete) and (skipPoint == 0):
-                            aTemp = {"ID" + str(localIterator): ans}
-                            temp.update(aTemp)
-                        elif ans == toDelete:
-                            skipPoint = 1  # found toDelete, acknowledge skipped index
-                        # we found toDelete, now offset all added elements
-                        # by one so we can fill the missed index
-                        elif (ans != toDelete) and (skipPoint == 1):
-                            aTemp = {"ID" + str(localIterator - 1): ans}
-                            temp.update(aTemp)
-                        subLocalIterator += 1  # move the iterator
-                    localIterator += 1  # move the iterator
-                else:
-                    neededUpdate = 0  # didn't need update
-                    localIterator += 1 # move the iterator
-            if localIterator == (len(possibleAnswers)) and (neededUpdate == 1):
-                print("temp" + str(temp))
-                possibleAnswers = dict(temp)  # load temp into possible answers
-                localIterator += 1  # we're done, iterate to exit
-                print("inside answers" + str(possibleAnswers))
-            else:
-                localIterator += 1  # didn't need to update, iterate to exit
-        print("outside answers" + str(possibleAnswers))
-
-        mostCommonTag = update_tag_data()
-        qIndex = select_question(mostCommonTag)
-
-    ###################################################
-    # Print question, receive input, reduce unanswered questions
+    elif 3 <= iterator < 20:
+        deleteThis.clear()  # clear deleteThis for a new data set
+        populate_delete_this()  # re-populate deleteThis
+        update_possible_answers()  # update the running list of possible answers
+        mostCommonTag = update_tag_data()  # find the most common tag
+        qIndex = select_question(mostCommonTag)  # get the index of the question associated with the most common tag
 
     questionCurrent = (unaskedQuestions["question" + str(qIndex)])
     print(str(iterator + 1) + ". " + questionCurrent["question"])
@@ -330,30 +234,8 @@ while iterator < 20:
             cond = 0
         else:
             print("Please enter a valid input. [yes] or [no]")
-
-    localIterator = 1  # reset iterator for use
-    temp.clear()  # clear dict for a new temporary data set
-    # used to acknowledge the skipped index for the question we remove
-    skipPoint = 0
-    # update the running list of usable questions
-    while localIterator <= len(unaskedQuestions):
-        q = unaskedQuestions["question" + str(localIterator)]
-
-        # if q isn't the 'current question'
-        # and we haven't found the 'current question'
-        # add q to the temporary dict
-        if (q is not questionCurrent) and (skipPoint == 0):
-            qTemp = {"question" + str(localIterator) : q}
-            temp.update(qTemp)
-        elif q is questionCurrent:
-            skipPoint = 1  # found 'current question', acknowledge skipped index
-        # found current q, now offset all elements by one to fill the missed index
-        elif (q is not questionCurrent) and (skipPoint == 1):
-            qTemp = {"question" + str(localIterator - 1): q}
-            temp.update(qTemp)
-
-        localIterator += 1  # move the iterator
-    unaskedQuestions = dict(temp)  # load temp into unaskedQuestions
+    # print(tagList)
+    update_unasked_questions(qIndex)  # updates the running list of unasked questions
 
     iterator += 1  # move the iterator
 
@@ -362,113 +244,59 @@ while iterator < 20:
 #######################################################
 
 # Select guesses and receive correct input
+deleteThis.clear()  # clear deleteThis for a new data set
+populate_delete_this()  # re-populate deleteThis
+update_possible_answers()  # update the running list of possible answers
 
-localIterator = 1  # reset iterator for use
-subLocalIterator = 0  # reset iterator for use
-loopPart = 1  # used to determine which subsection of loop to be operating
-temp.clear()  # clear dict for a new temporary data set
-# update the running list of possible answers
-# for the final time before guessing
-while localIterator <= (len(possibleAnswers) + 1):
-    # iterate through answers so we can check tag similarity
-    ans = possibleAnswers["ID" + str(localIterator)]
-    # dict of answers to remove from guess set
-    delValue = {}
-
-    # loop part 1 populates the delValue array
-    if (localIterator <= len(possibleAnswers)) and (loopPart == 1):
-        # tracks how many diff the current answer has from tagList
-        strike = 0
-        # check each answer against all tags in tagList
-        # add to delValue for removal if dissimilarities >= 4
-        while subLocalIterator < len(tagList):
-                    tag = tagList[subLocalIterator]
-                    if strike >= 4:
-                        # create a temporary dict to match top-level fileType
-                        aTemp = {"ID" + str(subLocalIterator): ans}
-                        delValue.update(aTemp)
-                        break  # it already failed, no need to check the rest
-                    elif tag not in ans["tag"]:
-                        strike += 1  # found an error, increment strikes
-                    subLocalIterator += 1  # move the iterator
-        localIterator += 1  # move the iterator
-        # if we've reached end of loop, reset and go to loop part 2
-        if localIterator == (len(possibleAnswers) + 1):
-            localIterator = 1
-            loopPart = 2
-    # loop part 2 uses delValue to remove selected answers from possibleAnswers
-    if (localIterator <= len(possibleAnswers)) and (loopPart == 2):
-        subLocalIterator = 0  # reset iterator for use
-        # used to acknowledge the skipped index for the value we removed
-        skipPoint = 0
-
-        # loop for each answer to be removed in delValue
-        while subLocalIterator < len(delValue):
-                    toDelete = delValue["ID" + str(subLocalIterator)]
-                    # as long as answer isn't toDelete
-                    # and we haven't found toDelete yet
-                    # add answer to temporary array
-                    if (ans is not toDelete) and (skipPoint == 0):
-                        aTemp = {"ID" + str(localIterator): ans}
-                        temp.update(aTemp)
-                    elif ans is toDelete:
-                        skipPoint = 1  # found toDelete, acknowledge skipped index
-                    # found toDelete, offset remaining elements by one to fill gap
-                    if (ans is not toDelete) and (skipPoint == 1):
-                        aTemp = {"ID" + str(localIterator - 1): ans}
-                        temp.update(aTemp)
-                    subLocalIterator += 1  # move the iterator
-        localIterator += 1  # move the iterator
-    elif localIterator == (len(possibleAnswers) + 1):
-        possibleAnswers = dict(temp)  # load temp into possible answers
-        localIterator += 1  # we're done, iterate to exit
-
+endCond = 0  # variable to determine if new data needs to be acquired and/or added
 # randomly selects an answer from possibleAnswers
-for y in range(1):
-    aIndex = random.randint(0, len(possibleAnswers))
-guess = (answers["ID" + str(aIndex)])
-print("Was it " + guess["name"])
+if len(possibleAnswers) == 0:  # if there is nothing left in possibleAnswers, we've already lost, go to collecting data
+    print("Well I'm stumped!")
+    endCond = -1
+else:  # possibleAnswers exists, select a random answer from it
+    aIndex = 0  # variable for storing the random number
+    for y in range(1):  #RNG
+        aIndex = random.randint(0, len(possibleAnswers))
+    guess = (possibleAnswers["ID" + str(aIndex)])  # sets answer to guess
+    print("Was it " + guess["name"])  # prints out final answer
 
-# checks to see if guess was correct, and ensures correct input
-endCond = 0
-while endCond == 0:
-    correct = input("")
-    correct.lower()  # standardizes input
-    if correct == "yes":
-        print("I knew it! Thanks for playing.")
-        endCond = 1  # we were right, exit without editing
-    elif correct == "no":
-        endCond = -1  # we were wrong, get the right answer from user
-    else:
-        print("Please enter a valid input. [yes] or [no]")
+    # checks to see if guess was correct, and ensures correct input
+    while endCond == 0:
+        correct = input("")
+        correct.lower()  # standardizes input
+        if correct == "yes":
+            print("I knew it! Thanks for playing.")
+            endCond = 1  # we were right, exit without editing
+        elif correct == "no":
+            endCond = -1  # we were wrong, get the right answer from user
+        else:
+            print("Please enter a valid input. [yes] or [no]")
 
     ###################################################
     # Select guesses and receive correct input
 
 # adds answer to array if guess was wrong
 if endCond == -1:
-    # gets animal from user
-    print("What was the animal?")
-    rightAnimal = input("")
+    print("What was the animal?")  # gets animal from user
+    rightAnimal = input("")  # input line
     rightAnimal.lower()  # standardizes input
-    localIterator = 1  # reset iterator for use
+    localIterator = 1  # iterator
     exists = 0  # variable to avoid adding a duplicate answer
 
     # check to see if answer already exists, and update it if so
-    while localIterator <= len(answers):
+    while localIterator <= len(answers):  # check all answers
         ans = answers["ID" + str(localIterator)]
         if rightAnimal == ans["name"]:  # answer already exists, update it
             animal = {"tag": tagList}  # add tags to update set
             ans.update(animal)  # update accessed answer
             exists = 1  # animal already exists, don't add a new one
         localIterator += 1  # move the iterator
-    # if answer doesn't already exist,
-    # creates a dict with
+    # if answer doesn't exist, create dict with
     # @param name: the string from user
     # @param tag: list of the existing tagList
     if exists == 0:
         animal = {"name": rightAnimal, "tag": tagList}  # create a temp dict
-        animalID = "ID" + str(len(answers))  # generate new answer's ID
+        animalID = "ID" + str(len(answers) + 1)  # generate new answer's ID, put it at the end of dict
         answerToWrite = {animalID : animal}  # create dict to add
         answers.update(answerToWrite)  # append new answer to file
 
