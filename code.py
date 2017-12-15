@@ -256,7 +256,7 @@ if len(possibleAnswers) == 0:  # if there is nothing left in possibleAnswers, we
 else:  # possibleAnswers exists, select a random answer from it
     aIndex = 0  # variable for storing the random number
     for y in range(1):  #RNG
-        aIndex = random.randint(0, len(possibleAnswers))
+        aIndex = random.randint(1, len(possibleAnswers))
     guess = (possibleAnswers["ID" + str(aIndex)])  # sets answer to guess
     print("Was it " + guess["name"])  # prints out final answer
 
